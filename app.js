@@ -50,10 +50,14 @@ app.post("/movies/", async (request, response) => {
 app.get("/movies/:movieId/", async (request, response) => {
   const { movieId } = request.params;
   const getMovieQuery = `
-    SELECT *
+    SELECT 
+movie_id AS movieId,    
+    director_id AS directorId,
+    movie_name AS movieName,
+    lead_actor AS leadActor
     FROM movie
     WHERE movie_id = ${movieId};`;
-  const movie = await db.run(getMovieQuery);
+  const movie = await db.get(getMovieQuery);
   response.send(movie);
 });
 
@@ -62,12 +66,12 @@ app.put("/movies/:movieId/", async (request, response) => {
   const { movieId } = request.params;
   const movieDetails = request.body;
   const { directorId, movieName, leadActor } = movieDetails;
-  const updateMovieQuery = `
-  UPDATE movie
-  SET (director_id = ${directorId},
+  const updateMovieQuery = `UPDATE movie
+  SET 
+  director_id = ${directorId},
     movie_name = '${movieName}',
-    lead_actor = '${leadActor}');`;
-  await db.run(updateMovieQuery);
+    lead_actor = '${leadActor}';`;
+  const dbResponse = await db.run(updateMovieQuery);
   response.send("Movie Details Updated");
 });
 
@@ -84,10 +88,11 @@ app.delete("/movies/:movieId/", async (request, response) => {
 //API 6
 app.get("/directors/", async (request, response) => {
   const getDirectorsQuery = `
-    SELECT *
-    FROM director
+    SELECT director_id AS directorId,
+director_name AS directorName
+    FROM director 
     ORDER BY director_id;`;
-  const directorsArray = db.all(getDirectorsQuery);
+  const directorsArray = await db.all(getDirectorsQuery);
   response.send(directorsArray);
 });
 
@@ -95,10 +100,10 @@ app.get("/directors/", async (request, response) => {
 app.get("/directors/:directorId/movies/", async (request, response) => {
   const { directorId } = request.params;
   const getDirectorMoviesQuery = `
-    SELECT movieName
+    SELECT movie_name AS movieName
     FROM movie
     WHERE director_id = ${directorId};`;
-  const moviesArray = db.all(getDirectorMoviesQuery);
+  const moviesArray = await db.all(getDirectorMoviesQuery);
   response.send(moviesArray);
 });
 
