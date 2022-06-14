@@ -70,7 +70,8 @@ app.put("/movies/:movieId/", async (request, response) => {
   SET 
   director_id = ${directorId},
     movie_name = '${movieName}',
-    lead_actor = '${leadActor}';`;
+    lead_actor = '${leadActor}'
+    where movie_id = ${movieId};`;
   const dbResponse = await db.run(updateMovieQuery);
   response.send("Movie Details Updated");
 });
